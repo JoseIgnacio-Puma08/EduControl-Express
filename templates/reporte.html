@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de Asistencia</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Reporte de Asistencia</h1>
+
+        <a href="/exportar_excel" class="btn">Exportar a Excel</a>
+
+        <table>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Paralelo</th>
+                <th>Fecha</th>
+                <th>Hora Entrada</th>
+                <th>Estado</th>
+            </tr>
+
+            {% set ns = namespace(paralelo_actual='') %}
+
+            {% for asistencia in asistencias %}
+
+                {% if asistencia.paralelo != ns.paralelo_actual %}
+                    <tr class="paralelo-header">
+                        <td colspan="6">Paralelo {{ asistencia.paralelo }}</td>
+                    </tr>
+                    {% set ns.paralelo_actual = asistencia.paralelo %}
+                {% endif %}
+
+                <tr>
+                    <td>{{ asistencia.nombre }}</td>
+                    <td>{{ asistencia.apellido }}</td>
+                    <td>{{ asistencia.paralelo }}</td>
+                    <td>{{ asistencia.fecha }}</td>
+                    <td>{{ asistencia.hora_entrada }}</td>
+                    <td>
+                        {% if asistencia.estado_asistencia == 1 %}
+                            <span class="presente">Presente</span>
+                        {% else %}
+                            <span class="falta">Falta</span>
+                        {% endif %}
+                    </td>
+                </tr>
+
+            {% endfor %}
+        </table>
+
+        <a href="/" class="btn">Volver</a>
+    </div>
+</body>
+</html>

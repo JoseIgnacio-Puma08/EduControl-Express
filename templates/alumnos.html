@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Estudiantes</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Lista de Estudiantes</h1>
+
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Paralelo</th>
+                <th>Estado</th>
+                <th>Asistencia</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+            </tr>
+
+            {% set ns = namespace(paralelo_actual='') %}
+
+            {% for alumno in alumnos %}
+
+                {% if alumno.paralelo != ns.paralelo_actual %}
+                    <tr class="paralelo-header">
+                        <td colspan="8">Paralelo {{ alumno.paralelo }}</td>
+                    </tr>
+                    {% set ns.paralelo_actual = alumno.paralelo %}
+                {% endif %}
+
+                <tr>
+                    <td>{{ alumno.id_estudiante }}</td>
+                    <td>{{ alumno.nombre }}</td>
+                    <td>{{ alumno.apellido }}</td>
+                    <td>{{ alumno.paralelo }}</td>
+                    <td>
+                        {% if alumno.estado_alumno == 1 %}
+                            Activo
+                        {% else %}
+                            Inactivo
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <a href="/marcar_asistencia/{{ alumno.id_estudiante }}" class="btn-small">
+                            Marcar asistencia
+                        </a>
+                    </td>
+
+                    <td>
+                        <a href="/editar_estudiante/{{ alumno.id_estudiante }}" class="btn-edit">
+                            Editar
+                        </a>
+                    </td>
+
+                    <td>
+                        <form method="POST" action="/eliminar_estudiante/{{ alumno.id_estudiante }}" onsubmit="return confirm('¿Seguro que deseas dar de baja a este estudiante?');">
+                            <button type="submit" class="btn-danger">
+                                Eliminar
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+
+            {% endfor %}
+        </table>
+
+        <a href="/" class="btn">Volver</a>
+    </div>
+</body>
+</html>

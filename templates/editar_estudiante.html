@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Estudiante</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Editar Estudiante</h1>
+
+        <form method="POST">
+            <label>Nombre:</label>
+            <input type="text" name="nombre" value="{{ estudiante.nombre }}" required>
+
+            <label>Apellido:</label>
+            <input type="text" name="apellido" value="{{ estudiante.apellido }}" required>
+
+            <label>Paralelo:</label>
+            <input type="text" name="paralelo" maxlength="1" value="{{ estudiante.paralelo }}" required>
+
+            <button type="submit">Actualizar estudiante</button>
+        </form>
+
+        <a href="/alumnos" class="btn">Volver</a>
+    </div>
+</body>
+</html>
