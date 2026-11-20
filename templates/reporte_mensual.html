@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte Mensual de Asistencia</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container-wide">
+        <h1>Reporte Mensual de Asistencia</h1>
+        <p>Mes: {{ mes_actual }} / {{ anio_actual }}</p>
+
+        <div class="table-scroll">
+            <table class="monthly-table">
+                <tr>
+                    <th class="fixed-column">Estudiante</th>
+                    {% for dia in dias_mes %}
+                        <th>{{ dia }}</th>
+                    {% endfor %}
+                </tr>
+
+                {% set ns = namespace(paralelo_actual='') %}
+
+                {% for estudiante in reporte %}
+
+                    {% if estudiante.paralelo != ns.paralelo_actual %}
+                        <tr class="paralelo-header">
+                            <td colspan="32">Paralelo {{ estudiante.paralelo }}</td>
+                        </tr>
+                        {% set ns.paralelo_actual = estudiante.paralelo %}
+                    {% endif %}
+
+                    <tr>
+                        <td class="student-name">
+                            {{ estudiante.apellido }} {{ estudiante.nombre }}
+                        </td>
+
+                        {% for estado in estudiante.dias %}
+                            {% if estado == "presente" %}
+                                <td class="check">✓</td>
+                            {% else %}
+                                <td class="cross">✕</td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+
+                {% endfor %}
+            </table>
+        </div>
+
+        <a href="/" class="btn">Volver</a>
+    </div>
+</body>
+</html>

@@ -310,5 +310,87 @@ def exportar_excel():
     return send_file(ruta_archivo, as_attachment=True)
 
 
+@app.route("/reporte_mensual")
+def reporte_mensual():
+    hoy = datetime.now()
+    anio_actual = hoy.year
+    mes_actual = hoy.month
+
+    dias_mes = list(range(1, 32))
+
+    conexion = conectar_db()
+    cursor = conexion.cursor(dictionary=True)
+
+    # Obtener estudiantes activos ordenados por paralelo, apellido y nombre
+    cursor.execute("""
+        SELECT 
+            id_estudiante,
+            nombre,
+            apellido,
+            paralelo,
+            estado_alumno
+        FROM estudiantes
+        WHERE estado_alumno = 1
+        ORDER BY paralelo ASC, apellido ASC, nombre ASC
+    """)
+
+    estudiantes = cursor.fetchall()
+
+    # Obtener asistencias del mes actual
+    cursor.execute("""
+        SELECT 
+            id_estudiante,
+            DAY(fecha) AS dia,
+            estado_asistencia
+        FROM asistencia
+        WHERE YEAR(fecha) = %s
+        AND MONTH(fecha) = %s
+    """, (anio_actual, mes_actual))
+
+    asistencias = cursor.fetchall()
+
+    cursor.close()
+    conexion.close()
+
+    # Crear un diccionario para buscar asistencia rápido
+    mapa_asistencia = {}
+
+    for asistencia in asistencias:
+        id_estudiante = asistencia["id_estudiante"]
+        dia = asistencia["dia"]
+        estado = asistencia["estado_asistencia"]
+
+        mapa_asistencia[(id_estudiante, dia)] = estado
+
+    # Armar estructura final para la tabla
+    reporte = []
+
+    for estudiante in estudiantes:
+        fila = {
+            "id_estudiante": estudiante["id_estudiante"],
+            "nombre": estudiante["nombre"],
+            "apellido": estudiante["apellido"],
+            "paralelo": estudiante["paralelo"],
+            "dias": []
+        }
+
+        for dia in dias_mes:
+            clave = (estudiante["id_estudiante"], dia)
+
+            if clave in mapa_asistencia and mapa_asistencia[clave] == 1:
+                fila["dias"].append("presente")
+            else:
+                fila["dias"].append("falta")
+
+        reporte.append(fila)
+
+    return render_template(
+        "reporte_mensual.html",
+        reporte=reporte,
+        dias_mes=dias_mes,
+        mes_actual=mes_actual,
+        anio_actual=anio_actual
+    )
+
 if __name__ == "__main__":
     app.run(debug=True)
